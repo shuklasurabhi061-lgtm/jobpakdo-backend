@@ -14,9 +14,15 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\AdController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ResumeController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\AdminController;
+
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/contact', [ContactController::class, 'store']);
 Route::get('/jobs', [JobController::class, 'index']);
 Route::get('/jobs/{id}', [JobController::class, 'show']);
 Route::get('/blogs', [BlogController::class, 'index']);
@@ -24,6 +30,7 @@ Route::get('/blogs/{id}', [BlogController::class, 'show']);
 Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/announcements', [AnnouncementController::class, 'index']);
 Route::get('/ads', [AdController::class, 'index']);
+Route::get('/plans', [SubscriptionController::class, 'plans']);
 
 // Protected routes (Token Required)
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -73,4 +80,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Analytics Routes
     Route::get('/employer/analytics', [AnalyticsController::class, 'employerAnalytics']);
     Route::get('/admin/analytics', [AnalyticsController::class, 'adminAnalytics']);
+
+    Route::get('/resume', [ResumeController::class, 'index']);
+    Route::post('/resume', [ResumeController::class, 'store']);
+    Route::patch('/resume/visibility', [ResumeController::class, 'toggleVisibility']);
+    Route::delete('/resume/{id}', [ResumeController::class, 'destroy']);
+
+    Route::get('/subscription/invoices', [SubscriptionController::class, 'invoices']);
+
+    // Admin Moderation Routes
+    Route::get('/admin/users', [AdminController::class, 'users']);
+    Route::patch('/admin/users/{id}/status', [AdminController::class, 'toggleUserStatus']);
+    Route::patch('/admin/jobs/{id}/remove', [AdminController::class, 'removeJob']);
 });

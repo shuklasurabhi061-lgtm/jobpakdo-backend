@@ -6,12 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+   public function up(): void
     {
         Schema::create('resumes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('file_name');
             $table->string('file_path');
+            $table->boolean('visible')->default(true);
             $table->timestamps();
         });
     }
