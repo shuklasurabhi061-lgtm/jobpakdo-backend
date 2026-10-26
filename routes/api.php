@@ -18,6 +18,23 @@ use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SavedJobController;
+use App\Http\Controllers\EmployerJobController;
+use App\Http\Controllers\ProfileController;
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/users/me/saved-jobs', [SavedJobController::class, 'index']);
+    Route::post('/jobs/{jobId}/save', [SavedJobController::class, 'store']);
+    Route::delete('/jobs/{jobId}/save', [SavedJobController::class, 'destroy']);
+    // Employer Job Management Routes
+    Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
+    Route::post('/employer/jobs', [EmployerJobController::class, 'store']);
+    Route::patch('/employer/jobs/{id}/status', [EmployerJobController::class, 'updateStatus']);
+    // Profile & Settings Routes
+    Route::get('/user/profile', [ProfileController::class, 'show']);
+    Route::put('/user/profile', [ProfileController::class, 'update']);
+    Route::put('/user/password', [ProfileController::class, 'updatePassword']);
+});
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
