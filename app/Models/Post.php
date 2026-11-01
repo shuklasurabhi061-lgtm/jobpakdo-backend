@@ -20,4 +20,12 @@ class Post extends Model
     {
         return $this->hasMany(PostComment::class);
     }
+    public function likes()
+   {
+    return $this->hasMany(Like::class); // Or whatever your Like model name is
+    }
+    public function company()
+    {
+    return $this->belongsTo(CompanyProfile::class, 'company_id'); // Or Company::class based on your model name
+    }
 }

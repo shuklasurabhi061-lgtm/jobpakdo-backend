@@ -5,7 +5,7 @@ use App\Http\Controllers\JobController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\CompanyFollowController;
-use App\Http\Controllers\FeedController;
+use App\Http\Controllers\Api\FeedController;//api
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\EmployerCompanyController;
 use App\Http\Controllers\BlogController;
@@ -16,11 +16,13 @@ use App\Http\Controllers\AdController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\SubscriptionController;//api
+use App\Http\Controllers\Api\AdminController;//api
 use App\Http\Controllers\SavedJobController;
 use App\Http\Controllers\EmployerJobController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Api\SeekerProfileController;
+use App\Http\Controllers\Api\CompanyController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/me/saved-jobs', [SavedJobController::class, 'index']);
@@ -30,10 +32,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/employer/jobs', [EmployerJobController::class, 'index']);
     Route::post('/employer/jobs', [EmployerJobController::class, 'store']);
     Route::patch('/employer/jobs/{id}/status', [EmployerJobController::class, 'updateStatus']);
-    // Profile & Settings Routes
-    Route::get('/user/profile', [ProfileController::class, 'show']);
-    Route::put('/user/profile', [ProfileController::class, 'update']);
-    Route::put('/user/password', [ProfileController::class, 'updatePassword']);
 });
 
 // Public routes
@@ -48,6 +46,11 @@ Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/announcements', [AnnouncementController::class, 'index']);
 Route::get('/ads', [AdController::class, 'index']);
 Route::get('/plans', [SubscriptionController::class, 'plans']);
+Route::get('/companies', [CompanyController::class, 'index']); 
+    Route::get('/companies/{id}', [CompanyController::class, 'show']); 
+    Route::get('/companies/{id}/jobs', [CompanyController::class, 'jobs']);
+    Route::get('/companies/{id}/posts', [CompanyController::class, 'posts']);
+    Route::get('/companies/{id}/employees', [CompanyController::class, 'employees']);
 
 // Protected routes (Token Required)
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -65,6 +68,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/feed', [FeedController::class, 'index']);
     Route::post('/posts', [FeedController::class, 'store']);
+    Route::post('/posts/{id}/unlike', [FeedController::class, 'unlike']);
     Route::post('/posts/{id}/like', [FeedController::class, 'like']);
     Route::post('/posts/{id}/comments', [FeedController::class, 'addComment']);
     // Candidate Search Route
@@ -109,4 +113,33 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/admin/users', [AdminController::class, 'users']);
     Route::patch('/admin/users/{id}/status', [AdminController::class, 'toggleUserStatus']);
     Route::patch('/admin/jobs/{id}/remove', [AdminController::class, 'removeJob']);
+
+    // --- Authenticated Routes ---
+    // Company Follow / Unfollow Routes
+    Route::post('/companies/{id}/follow', [CompanyFollowController::class, 'follow']);
+    Route::delete('/companies/{id}/unfollow', [CompanyFollowController::class, 'unfollow']);
+    
+    //  Job Seeker & Profile Settings
+    Route::get('/users/me/profile', [SeekerProfileController::class, 'show']);
+    Route::put('/users/me/profile', [SeekerProfileController::class, 'update']);
+    Route::put('/user/password', [ProfileController::class, 'updatePassword']);
+    Route::get('/users/me/settings', [SeekerProfileController::class, 'getSettings']);
+    Route::put('/users/me/settings', [SeekerProfileController::class, 'updateSettings']);
+    Route::get('/resume/{id}/preview', [SeekerProfileController::class, 'previewResume']);
+    Route::get('/notifications', [SeekerProfileController::class, 'notifications']);
+    Route::patch('/notifications/{id}/read', [SeekerProfileController::class, 'markNotificationRead']);
+
+
+}); 
+
+   Route::prefix('employer')->middleware(['auth:sanctum', 'role:employer'])->group(function () {
+    
+    // Job Management (EmployerJobController)
+    Route::get('/jobs/{id}', [EmployerJobController::class, 'show']);
+    Route::put('/jobs/{id}', [EmployerJobController::class, 'update']);
+    Route::post('/jobs/{id}/close', [EmployerJobController::class, 'close']);
+
+    // Company Profile Management (EmployerCompanyController)
+    Route::get('/company', [EmployerCompanyController::class, 'show']);
+    Route::put('/company', [EmployerCompanyController::class, 'update']);
 });
